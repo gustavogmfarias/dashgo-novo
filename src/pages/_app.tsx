@@ -4,14 +4,12 @@ import { theme } from "../styles/theme";
 import { SidebarDrawerProvider } from "../components/contexts/SidebarDrawerContext";
 import { makeServer } from "../services/mirage";
 import { QueryClientProvider } from "react-query";
-import { QueryClient } from "react-query";
 import { ReactQueryDevtools } from "react-query/devtools";
+import { queryCliente } from "../services/queryClient";
 
 if (process.env.NODE_ENV === "development") {
   makeServer();
 }
-
-const queryCliente = new QueryClient();
 
 export default function MyApp({ Component, pageProps }: AppProps) {
   return (

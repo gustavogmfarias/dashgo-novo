@@ -1,4 +1,10 @@
-import { createServer, Factory, Model, Response } from "miragejs";
+import {
+  createServer,
+  Factory,
+  Model,
+  Response,
+  ActiveModelSerializer,
+} from "miragejs";
 import { faker } from "@faker-js/faker";
 
 type User = {
@@ -9,6 +15,7 @@ type User = {
 
 export function makeServer() {
   const server = createServer({
+    serializers: { application: ActiveModelSerializer },
     models: {
       user: Model.extend<Partial<User>>({}),
     },
@@ -56,6 +63,7 @@ export function makeServer() {
         return new Response(200, { "x-total-count": String(total) }, { users }); // a) Poderia retornar direto os usuários, mas a documentação do mirage e como terá headers, é preciso retorna de forma diferente, usando esse response. É um padrão que metadados se retorne via headers, no caso, x-total-count é um header padrão da comunidade, mas pode usar o nome que quiser, o primeiro é o status e o último é o body users. b) Esse response é importado do mirage.
       });
       this.post("/users");
+      this.get("/users/:id");
 
       this.namespace = "";
       this.passthrough();

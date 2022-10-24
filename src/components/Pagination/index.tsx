@@ -1,4 +1,4 @@
-import { Stack, Box } from "@chakra-ui/react";
+import { Stack, Box, Text } from "@chakra-ui/react";
 import { PaginationItem } from "./PaginationItem";
 
 interface PagionationProps {
@@ -69,36 +69,83 @@ export function Pagination({
         <strong>0</strong> - <strong>10</strong> de <strong>100</strong>
       </Box>
       <Stack direction="row" spacing="2">
-        {currentPage > 1 + siblingsCount && <PaginationItem number={1} />}
+        {currentPage > 1 + siblingsCount && (
+          <>
+            <PaginationItem onPageChange={onPageChange} number={1} />
+            {currentPage > 2 + siblingsCount && (
+              <Text color="gray.300" w="8" textAlign="center">
+                ...
+              </Text>
+            )}
+          </>
+        )}
         {/* 
-        3) Ou seja, aqui eu quero mostrar a first page, que vai aparecer quando a pagina atual maior que a siblingcount +1 */}
+        3) Ou seja, aqui eu quero mostrar a first page, que vai aparecer quando a pagina atual maior que a siblingcount +1 
+        
+        5) Para  colocar "..." entre first page, sibligns page e last page 
+        (1...3 4 5 6 ... 20) primeiramente tenho que colocar o fragmento <></> entre a condicional e o pagination item.
+        6) {currentPage > 2 + siblingsCount && (
+              <Text color="gray.300" w="8" textAlign="center">
+                ...
+              </Text>
+            )} 
+
+            faço então que se a página atual for menor que 2 + siblingCount, ou seja, se eu estou na pagina 5, e a pagina atual é 3, sendo que 3 é menor que 2+ 2, então a first page vai ficar distante da current page, logo, é preciso colocar o "..." 
+        
+        */}
 
         {previousPages.length > 0 &&
           previousPages.map((page) => {
-            return <PaginationItem number={page} key={page} />;
+            return (
+              <PaginationItem
+                onPageChange={onPageChange}
+                number={page}
+                key={page}
+              />
+            );
           })}
 
         {/* 2) Crio as paginas anteriores, se previos page. length for maior que zero. 
               Percorro então as previous page e pra cada uma crio uma com o numero dela e a key.
         */}
 
-        <PaginationItem number={currentPage} isCurrent />
+        <PaginationItem
+          onPageChange={onPageChange}
+          number={currentPage}
+          isCurrent
+        />
 
         {/* 1) crio um pagination item que vai ser a pagina atual, vai ficar no meio. */}
 
         {nextPages.length > 0 &&
           nextPages.map((page) => {
-            return <PaginationItem number={page} key={page} />;
+            return (
+              <PaginationItem
+                onPageChange={onPageChange}
+                number={page}
+                key={page}
+              />
+            );
           })}
 
         {/* 3) Mesmo processo da 2 com as nextpages.
          */}
 
         {currentPage + siblingsCount < lastPage && (
-          <PaginationItem number={lastPage} />
+          <>
+            {currentPage + 1 + siblingsCount < lastPage && (
+              <Text color="gray.300" w="8" textAlign="center">
+                ...
+              </Text>
+            )}
+
+            <PaginationItem onPageChange={onPageChange} number={lastPage} />
+          </>
         )}
         {/* 
-        4) Ou seja, se curentpage + siblings page ainda assim for menor que a última pagina, eu mostro ela, já que ela não vai estar aparecendo */}
+        4) Ou seja, se curentpage + siblings page ainda assim for menor que a última pagina, eu mostro ela, já que ela não vai estar aparecendo */
+        /* 7) Mesmo processo da 5 e 6, mas com a last page.
+         */}
       </Stack>
     </Stack>
   );

@@ -16,6 +16,8 @@ import { Sidebar } from "../../components/Sidebar";
 import { SubmitHandler, useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { useMutation } from "react-query";
+import { api } from "../../services/api";
 
 type CreateUserFormData = {
   email: string;
@@ -40,6 +42,26 @@ const createUserFormSchema = yup.object().shape({
 });
 
 export default function CreateUser() {
+  const createUser = useMutation(async (user: CreateUserFormData) => {
+    const response = await api.post("users", {
+      user: {
+        ...user,
+        created_at: new Date(),
+      },
+    });
+
+    return response.data.user;
+  });
+  // Sobre o UseMutation:
+  // a) aqui não crio uma chave com no usequery, aqui eu passo direto qual função eu quero usar.
+  // b) coloco os dados do usuário, no caso, com já tem "pronto", vindo da função "handleCreateUser", eu recebo os dados na função, tipo com o CreateUserFormData,
+  //e dentro do objeto user do corpo da função, eu envio todos os dados "...user"
+  // c) como no mirage tem um campo chamado created_at e não quero configurar  omirage todo,
+  // e essa informação n vem do campo form, eu coloco ela no ...user.
+  // d) coloco created_at com underline porque o serializer vai fazer a conversão automática para createdAt. No front enviamos com underline e no back usamos com camelCase(CreatedAt), eo mirage age automaticamente
+  // e) envio a data atual.
+  // f) retorno o usário cadastro, mas geralmente não precisa quadno é inserção
+
   const { register, handleSubmit, formState } = useForm({
     resolver: yupResolver(createUserFormSchema),
   });
@@ -48,9 +70,9 @@ export default function CreateUser() {
   const handleCreateUser: SubmitHandler<CreateUserFormData> = async (
     values
   ) => {
-    await new Promise((resolve) => setTimeout(resolve, 4000));
-    console.log(values);
+    await createUser.mutateAsync(values);
   };
+
   return (
     <Box>
       <Header />
