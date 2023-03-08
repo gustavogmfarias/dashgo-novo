@@ -18,6 +18,8 @@ import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useMutation } from "react-query";
 import { api } from "../../services/api";
+import { queryCliente } from "../../services/queryClient";
+import { useRouter } from "next/router";
 
 type CreateUserFormData = {
   email: string;
@@ -42,16 +44,25 @@ const createUserFormSchema = yup.object().shape({
 });
 
 export default function CreateUser() {
-  const createUser = useMutation(async (user: CreateUserFormData) => {
-    const response = await api.post("users", {
-      user: {
-        ...user,
-        created_at: new Date(),
-      },
-    });
+  const router = useRouter();
 
-    return response.data.user;
-  });
+  const createUser = useMutation(
+    async (user: CreateUserFormData) => {
+      const response = await api.post("users", {
+        user: {
+          ...user,
+          created_at: new Date(),
+        },
+      });
+
+      return response.data.user;
+    },
+    {
+      onSuccess: () => {
+        queryCliente.invalidateQueries("users");
+      }, //a) Coloco onSucess como segundo parametro do useMutation b) eu importo o queryClient c) eu invalido a users, mas posso invalidar mais de um, etc. d) para invalidar mais de uma basta colocar em array ["users", 1, 2 etc]
+    }
+  );
   // Sobre o UseMutation:
   // a) aqui não crio uma chave com no usequery, aqui eu passo direto qual função eu quero usar.
   // b) coloco os dados do usuário, no caso, com já tem "pronto", vindo da função "handleCreateUser", eu recebo os dados na função, tipo com o CreateUserFormData,
@@ -71,6 +82,7 @@ export default function CreateUser() {
     values
   ) => {
     await createUser.mutateAsync(values);
+    router.push("/users");
   };
 
   return (

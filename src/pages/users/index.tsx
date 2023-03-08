@@ -22,13 +22,16 @@ import { Header } from "../../components/Header";
 import { Pagination } from "../../components/Pagination";
 import { Sidebar } from "../../components/Sidebar";
 import { api } from "../../services/api";
-import { useUsers } from "../../services/hooks/useUsers";
+import { getUsers, useUsers } from "../../services/hooks/useUsers";
 import { useState } from "react";
 import { queryCliente } from "../../services/queryClient";
+import { GetServerSideProps } from "next";
 
-export default function UserList() {
+export default function UserList({ users }) {
   const [page, setPage] = useState(1);
-  const { data, isLoading, isFetching, error } = useUsers(page);
+  const { data, isLoading, isFetching, error } = useUsers(page, {
+    initialData: users,
+  });
 
   const isWideVersion = useBreakpointValue({ base: false, lg: true });
 
@@ -145,3 +148,13 @@ export default function UserList() {
     </Box>
   );
 }
+
+// export const getServerSideProps: GetServerSideProps = async () => {
+//   const { users, totalCount } = await getUsers(1); // lembro de passar a página, por padrão é 1, a primeira.
+
+//   return { props: { users } };
+// }; //a) Repare que a const está tipado com o GetServerSideProps.
+// b) retorno as props
+//c) em useUsers, separamos em duas funções, getUsers e Use Users, logo, dentro do getServerSideprops, eu pego o getUsers para pegar a listagem inicial de usuário.
+// d) envio os usuários como propriedade no retorno
+//e) para integrar com reactquery, pois até então a informação users não vai a lugar nenhum.
